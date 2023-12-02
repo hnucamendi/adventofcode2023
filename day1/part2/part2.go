@@ -12,6 +12,8 @@ import (
 
 var parseKeys map[string]string = map[string]string{"one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9"}
 
+// var pStr string = "[^onetwhrfuivsxg0-9]"
+
 func Run() {
 	start := time.Now()
 	f, err := os.Open("input.txt")
@@ -36,7 +38,10 @@ func ProcessFile(f *os.File) (int, error) {
 	sum := 0
 
 	for s.Scan() {
-		ns, err := parseString(s.Text())
+		// rpStr, _ := regexp.Compile(pStr)
+		// pbs := rpStr.ReplaceAll([]byte(s.Text()), []byte(""))
+
+		ns, err := parseController(s.Text())
 		if err != nil {
 			return 0, err
 		}
@@ -53,12 +58,12 @@ func ProcessFile(f *os.File) (int, error) {
 		}
 
 		sum += i
-		// fmt.Printf("%s\t%s\t%s\t%d\t%d\n", s.Text(), ns, bs, i, sum)
+		// fmt.Printf("org:%s\tns:%s\tbs:%s\ti:%d\tsum:%d\n", s.Text(), ns, bs, i, sum)
 	}
 	return sum, nil
 }
 
-func parseString(s string) (string, error) {
+func parseController(s string) (string, error) {
 	s = strings.ToLower(s)
 	r, _ := regexp.Compile("[0-9]")
 
@@ -66,36 +71,39 @@ func parseString(s string) (string, error) {
 		return s, nil
 	} else if r.MatchString(string([]byte(s)[0])) {
 		for k := range parseKeys {
+			// rx, _ := regexp.Compile(k)
 			if strings.HasSuffix(s, k) {
-				fmt.Printf("SUFF:%s\n", s)
+				return parseString(string(s[0]) + s[len(s)-5:]), nil
 			}
 		}
 	} else if r.MatchString(string([]byte(s)[len(s)-1])) {
 		for k := range parseKeys {
 			if strings.HasPrefix(s, k) {
-				fmt.Printf("PRE:%s\n", s)
+				return parseString(s[:5] + string(s[len(s)-1])), nil
 			}
 		}
 	}
 
-	// for i := 5; i >= 3; i-- {
-	// 	for k := range parseKeys {
-	// 		r, _ := regexp.Compile(k)
-	// 		if r.MatchString(s[:i]) {
-	// 			fmt.Println(s)
-	// 		}
-	// 	}
-	// }
+	// fmt.Println(s)
 
-	// fmt.Printf("%s\t%s\t%s\n", k, v, s)
-	// rx, err := regexp.Compile(k)
-	// if err != nil {
-	// 	return "", nil
-	// }
+	return parseString(s), nil
+}
 
-	// if i := rx.MatchString(s); i {
-	// 	// fmt.Printf("%s\t%s\t%s\n", k, v, s)
-	// 	s = string(rx.ReplaceAll([]byte(s), []byte(v)))
-	// }
-	return s, nil
+func parseString(s string) string {
+	for k, i := range parseKeys {
+		rx, _ := regexp.Compile(k)
+		// fmt.Printf("PARSER: %s\t%s\t%s\t\n", k, i, s)
+		if rx.MatchString(s) {
+			s = string(rx.ReplaceAll([]byte(s), []byte(i)))
+			// fmt.Printf("PARSER: %s\t%s\t%s\t\n", k, i, s)
+		}
+	}
+	// s = removeAlpha(s)
+	// fmt.Printf("PARSER: %s\t\n", s)
+	return s
+}
+
+func removeAlpha(s string) string {
+	rexp, _ := regexp.Compile("[a-zA-Z]")
+	return string(rexp.ReplaceAll([]byte(s), []byte("")))
 }
