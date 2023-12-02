@@ -67,9 +67,20 @@ func parseController(s string) (string, error) {
 	s = strings.ToLower(s)
 	r, _ := regexp.Compile("[0-9]")
 
-	if r.MatchString(string([]byte(s)[0])) && r.MatchString(string([]byte(s)[len(s)-1])) {
+	if (r.MatchString(string([]byte(s)[0])) && r.MatchString(string([]byte(s)[len(s)-1]))) || len(s) < 3 {
 		return s, nil
-	} else if r.MatchString(string([]byte(s)[0])) {
+	}
+
+	if len(s) >= 3 && len(s) <= 5 {
+		for k := range parseKeys {
+			rx, _ := regexp.Compile(k)
+			if !rx.MatchString(s) {
+				return parseString(s), nil
+			}
+		}
+	}
+
+	if r.MatchString(string([]byte(s)[0])) {
 		for k := range parseKeys {
 			// rx, _ := regexp.Compile(k)
 			if strings.HasSuffix(s, k) {
@@ -78,13 +89,16 @@ func parseController(s string) (string, error) {
 		}
 	} else if r.MatchString(string([]byte(s)[len(s)-1])) {
 		for k := range parseKeys {
+			// rx, _ := regexp.Compile(k)
 			if strings.HasPrefix(s, k) {
 				return parseString(s[:5] + string(s[len(s)-1])), nil
 			}
+
+			// if rx.Match([]byte(s[:5])) {
+			// 	fmt.Println(s)
+			// }
 		}
 	}
-
-	// fmt.Println(s)
 
 	return parseString(s), nil
 }
