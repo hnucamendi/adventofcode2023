@@ -6,13 +6,12 @@ import (
 	"os"
 	"regexp"
 	"strconv"
-	"strings"
 	"time"
 )
 
 var parseKeys map[string]string = map[string]string{"one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9"}
 
-// var pStr string = "[^onetwhrfuivsxg0-9]"
+var pStr, _ = regexp.Compile("[^onetwhrfuivsxg0-9]")
 
 func Run() {
 	start := time.Now()
@@ -38,9 +37,6 @@ func ProcessFile(f *os.File) (int, error) {
 	sum := 0
 
 	for s.Scan() {
-		// rpStr, _ := regexp.Compile(pStr)
-		// pbs := rpStr.ReplaceAll([]byte(s.Text()), []byte(""))
-
 		ns, err := parseController(s.Text())
 		if err != nil {
 			return 0, err
@@ -64,41 +60,44 @@ func ProcessFile(f *os.File) (int, error) {
 }
 
 func parseController(s string) (string, error) {
-	s = strings.ToLower(s)
+	s = pStr.ReplaceAllString(s, "")
 	r, _ := regexp.Compile("[0-9]")
 
-	if (r.MatchString(string([]byte(s)[0])) && r.MatchString(string([]byte(s)[len(s)-1]))) || len(s) < 3 {
-		return s, nil
+	if len(s) <= 3 {
+		return parseString(s), nil
 	}
 
-	if len(s) >= 3 && len(s) <= 5 {
-		for k := range parseKeys {
-			rx, _ := regexp.Compile(k)
-			if !rx.MatchString(s) {
-				return parseString(s), nil
-			}
-		}
+	if r.MatchString(string([]byte(s)[0])) && r.MatchString(string([]byte(s)[len(s)-1])) {
+		return parseString(s), nil
 	}
 
-	if r.MatchString(string([]byte(s)[0])) {
-		for k := range parseKeys {
-			// rx, _ := regexp.Compile(k)
-			if strings.HasSuffix(s, k) {
-				return parseString(string(s[0]) + s[len(s)-5:]), nil
-			}
-		}
-	} else if r.MatchString(string([]byte(s)[len(s)-1])) {
-		for k := range parseKeys {
-			// rx, _ := regexp.Compile(k)
-			if strings.HasPrefix(s, k) {
-				return parseString(s[:5] + string(s[len(s)-1])), nil
-			}
+	// if len(s) >= 3 && len(s) <= 5 {
+	// 	for k := range parseKeys {
+	// 		rx, _ := regexp.Compile(k)
+	// 		if !rx.MatchString(s) {
+	// 			return parseString(s), nil
+	// 		}
+	// 	}
+	// }
 
-			// if rx.Match([]byte(s[:5])) {
-			// 	fmt.Println(s)
-			// }
-		}
+	for k := range parseKeys {
+
 	}
+
+	// } else if r.MatchString(string([]byte(s)[len(s)-1])) {
+	// 	for k := range parseKeys {
+	// 		// rx, _ := regexp.Compile(k)
+	// 		if strings.HasPrefix(s, k) {
+	// 			return parseString(s[:5] + string(s[len(s)-1])), nil
+	// 		}
+
+	// 		// if rx.Match([]byte(s[:5])) {
+	// 		// 	fmt.Println(s)
+	// 		// }
+	// 	}
+	// }
+
+	fmt.Println(s)
 
 	return parseString(s), nil
 }
