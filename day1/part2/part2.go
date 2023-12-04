@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"strconv"
 	"time"
 )
 
@@ -22,101 +21,133 @@ func Run() {
 
 	defer f.Close()
 
-	s, err := ProcessFile(f)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v", err)
-	}
+	s := ProcessFile(f)
 
-	fmt.Println(s)
-	fmt.Printf("elapsed time %v\n", time.Since(start))
+	fmt.Printf("elapsed time: %v\tresult: %d\n", time.Since(start), s)
 }
 
-func ProcessFile(f *os.File) (int, error) {
+func ProcessFile(f *os.File) int {
 	s := bufio.NewScanner(f)
 
 	sum := 0
 
 	for s.Scan() {
-		ns, err := parseController(s.Text())
-		if err != nil {
-			return 0, err
-		}
-
-		rexp, err := regexp.Compile("[a-zA-Z]")
-		if err != nil {
-			return 0, err
-		}
-
-		bs := rexp.ReplaceAll([]byte(ns), []byte(""))
-		i, err := strconv.Atoi(fmt.Sprintf("%s%s", string(bs[0]), string(bs[len(bs)-1])))
-		if err != nil {
-			return 0, err
-		}
-
-		sum += i
+		sum += parseController(s.Text())
 		// fmt.Printf("org:%s\tns:%s\tbs:%s\ti:%d\tsum:%d\n", s.Text(), ns, bs, i, sum)
 	}
-	return sum, nil
+	return sum
 }
 
-func parseController(s string) (string, error) {
-	s = pStr.ReplaceAllString(s, "")
-	r, _ := regexp.Compile("[0-9]")
+func parseController(s string) int {
+	_ = checkLeft(s)
 
-	if len(s) <= 3 {
-		return parseString(s), nil
-	}
-
-	if r.MatchString(string([]byte(s)[0])) && r.MatchString(string([]byte(s)[len(s)-1])) {
-		return parseString(s), nil
-	}
-
-	// if len(s) >= 3 && len(s) <= 5 {
-	// 	for k := range parseKeys {
-	// 		rx, _ := regexp.Compile(k)
-	// 		if !rx.MatchString(s) {
-	// 			return parseString(s), nil
-	// 		}
-	// 	}
-	// }
-
-	for k := range parseKeys {
-
-	}
-
-	// } else if r.MatchString(string([]byte(s)[len(s)-1])) {
-	// 	for k := range parseKeys {
-	// 		// rx, _ := regexp.Compile(k)
-	// 		if strings.HasPrefix(s, k) {
-	// 			return parseString(s[:5] + string(s[len(s)-1])), nil
-	// 		}
-
-	// 		// if rx.Match([]byte(s[:5])) {
-	// 		// 	fmt.Println(s)
-	// 		// }
-	// 	}
-	// }
-
-	fmt.Println(s)
-
-	return parseString(s), nil
+	return 0
 }
 
-func parseString(s string) string {
-	for k, i := range parseKeys {
-		rx, _ := regexp.Compile(k)
-		// fmt.Printf("PARSER: %s\t%s\t%s\t\n", k, i, s)
-		if rx.MatchString(s) {
-			s = string(rx.ReplaceAll([]byte(s), []byte(i)))
-			// fmt.Printf("PARSER: %s\t%s\t%s\t\n", k, i, s)
+func checkLeft(s string) string {
+	for i, k := range s {
+		if k == 'o' {
+			// one
+			if i+3 > len(s) {
+				continue
+			}
+
+			if string(s[i:i+3]) != "one" {
+				continue
+			}
+
+			fmt.Println(string(s[i : i+3]))
+			return "1"
+		}
+
+		if k == 't' {
+			// two
+			// three
+			if i+3 > len(s) {
+				continue
+			}
+		}
+
+		if k == 'f' {
+			// four
+			// five
+			if i+3 > len(s) {
+				continue
+			}
+		}
+
+		if k == 's' {
+			// six
+			// seven
+			if i+3 > len(s) {
+				continue
+			}
+		}
+
+		if k == 'e' {
+			// eight
+			if i+3 > len(s) {
+				continue
+			}
+		}
+
+		if k == 'n' {
+			// nine
+			if i+3 > len(s) {
+				continue
+			}
 		}
 	}
-	// s = removeAlpha(s)
-	// fmt.Printf("PARSER: %s\t\n", s)
-	return s
+	return ""
 }
 
-func removeAlpha(s string) string {
-	rexp, _ := regexp.Compile("[a-zA-Z]")
-	return string(rexp.ReplaceAll([]byte(s), []byte("")))
-}
+// func checkRight(s string) int {
+// 	for i := len(s) - 1; i >= 0; i-- {
+// 		// fmt.Println(string(s[i]))
+// 		if s[i] == 'o' {
+// 			// one
+// 			if i+3 > len(s) {
+// 				continue
+// 			}
+// 			fmt.Println(s[i : i+3])
+// 		}
+// 		if s[i] == 't' {
+// 			// two
+// 			// three
+// 			if i+3 > len(s) {
+// 				continue
+// 			}
+// 		}
+
+// 		if s[i] == 'f' {
+// 			// four
+// 			// five
+// 			if i+3 > len(s) {
+// 				continue
+// 			}
+// 		}
+
+// 		if s[i] == 's' {
+// 			// six
+// 			// seven
+// 			if i+3 > len(s) {
+// 				continue
+// 			}
+// 		}
+
+// 		if s[i] == 'e' {
+// 			// eight
+// 			if i+3 > len(s) {
+// 				continue
+// 			}
+// 		}
+
+// 		if s[i] == 'n' {
+// 			// nine
+// 			if i+3 > len(s) {
+// 				continue
+// 			}
+// 		}
+// 	}
+// 	return 0
+// }
