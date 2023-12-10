@@ -11,7 +11,7 @@ import (
 
 func Run() {
 	start := time.Now()
-	f, err := os.Open("input.txt")
+	f, err := os.Open("part2.txt")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v", err)
 	}
