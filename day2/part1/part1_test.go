@@ -15,7 +15,7 @@ func TestPart1(t *testing.T) {
 		{
 			name:  "Main Test",
 			want:  8,
-			input: "../part1.txt",
+			input: "../part1_test.txt",
 		},
 	}
 

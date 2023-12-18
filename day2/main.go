@@ -5,6 +5,7 @@ import (
 )
 
 func main() {
+	// 676 - too low
 	part1.Run()
 	// part2.Run()
 }
