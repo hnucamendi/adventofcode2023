@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 )
-
 var possible = map[string]int{
 	"red":   12,
 	"green": 13,
@@ -33,11 +32,13 @@ func ProcessFile(f *os.File) int {
 	s := bufio.NewScanner(f)
 	sum := 0
 
+	
 	for s.Scan() {
+		r:= possible["red"]
+		g:= possible["green"]
+		b:= possible["blue"]
+
 		var game int
-		var rSum int = 0
-		var gSum int = 0
-		var bSum int = 0
 		// index of ':' + 2
 		var startIndex int
 
@@ -62,29 +63,28 @@ func ProcessFile(f *os.File) int {
 			for i, s := range v {
 				if s == 'r' {
 					ri, _ := strconv.Atoi(string(v[i-2]))
-					rSum += ri
+					r -= ri
 				}
-
+				
 				if s == 'g' {
 					gi, _ := strconv.Atoi(string(v[i-2]))
-					gSum += gi
+					g -= gi
 				}
-
+				
 				if s == 'b' {
 					bi, _ := strconv.Atoi(string(v[i-2]))
-					bSum += bi
+					b -= bi
 				}
 			}
 		}
-
-		if rSum > possible["red"] || gSum > possible["green"] || bSum > possible["blue"] {
-			fmt.Println("NP: ", game, rSum, gSum, bSum)
+		
+		if r < 0 || g < 0 || b < 0 {
+			fmt.Println("NP : ",game,r,g,b, game, inGame)
 			continue
 		}
-
-		fmt.Println("P : ", game, rSum, gSum, bSum)
-
 		sum += game
+		fmt.Println("P : ",game,r,g,b, inGame)
+
 	}
 
 	return sum
